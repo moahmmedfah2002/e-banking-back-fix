@@ -1,0 +1,14 @@
+services:
+  postgres:
+      image: postgres
+      container_name: postgres
+      restart: unless-stopped
+      ports:
+        - "5432:5432"
+      environment:
+        POSTGRES_USER: banque
+        POSTGRES_PASSWORD: banque123
+        POSTGRES_DB: banck_db
+
+
+
