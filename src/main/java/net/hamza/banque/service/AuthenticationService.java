@@ -90,7 +90,7 @@ public class AuthenticationService {
                     " \"text\": \""+"your code to login is :  "+otp+"\"" +
                     "}";
             Request request = new Request.Builder()
-                    .url("http://waha:3000/api/sendText")
+                    .url("http://127.0.0.1:3000/api/sendText")
                     .post(RequestBody.create(MediaType.parse("application/json"),body))
                     .build();
             Call call =new OkHttpClient().newCall(request);
