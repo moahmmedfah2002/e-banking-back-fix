@@ -73,7 +73,7 @@ public class AuthController {
         return userRepository.findByEmail(u).get();
 
     }
-    @GetMapping("/validateOtp")
+    @GetMapping("validateOtp")
     public boolean validateOtp(@RequestParam Integer otp,@RequestParam String token){
             Utilisateur user=this.getUserByToken(token);
             Integer otpuser=user.getOtp();
