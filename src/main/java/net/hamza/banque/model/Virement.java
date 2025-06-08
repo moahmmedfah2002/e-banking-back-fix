@@ -14,7 +14,7 @@ import org.hibernate.mapping.Array;
 @Entity
 @RequiredArgsConstructor
 @Table(name = "virements")
-
+@Data
 @DiscriminatorValue("VIREMENT")
 public class Virement extends Transaction {
 

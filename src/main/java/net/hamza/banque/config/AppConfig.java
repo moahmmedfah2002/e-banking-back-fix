@@ -3,6 +3,7 @@ package net.hamza.banque.config;
 import lombok.RequiredArgsConstructor;
 import net.hamza.banque.repository.UserRepo;
 import net.hamza.banque.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @RequiredArgsConstructor
 public class AppConfig {
+
     private final UserRepo userRepository;
 
     @Bean

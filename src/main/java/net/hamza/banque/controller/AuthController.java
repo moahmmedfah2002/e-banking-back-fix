@@ -23,7 +23,7 @@ import java.util.Optional;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth/")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "*")
 public class AuthController {
     private final UserRepo userRepository;
     private final ClientRepo clientRepo;
@@ -73,7 +73,7 @@ public class AuthController {
         return userRepository.findByEmail(u).get();
 
     }
-    @GetMapping("/validateOtp")
+    @GetMapping("validateOtp")
     public boolean validateOtp(@RequestParam Integer otp,@RequestParam String token){
             Utilisateur user=this.getUserByToken(token);
             Integer otpuser=user.getOtp();

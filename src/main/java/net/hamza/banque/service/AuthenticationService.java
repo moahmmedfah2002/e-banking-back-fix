@@ -90,24 +90,24 @@ public class AuthenticationService {
                     " \"text\": \""+"your code to login is :  "+otp+"\"" +
                     "}";
             Request request = new Request.Builder()
-                    .url("http://waha:3000/api/sendText")
+                    .url("http://127.0.0.1:3000/api/sendText")
                     .post(RequestBody.create(MediaType.parse("application/json"),body))
                     .build();
             Call call =new OkHttpClient().newCall(request);
             call.execute();
             OkHttpClient client = new OkHttpClient();
 
-            MediaType mediaType = MediaType.parse("application/json");
-            RequestBody bodysms = RequestBody.create(mediaType, "{\"type\":\"transactional\",\"unicodeEnabled\":false,\"sender\":\"pfs\",\"recipient\":\""+phone+"\",\"content\":\"your code to login : "+otp+"\"}");
-            Request requestsms = new Request.Builder()
-                    .url("https://api.brevo.com/v3/transactionalSMS/send")
-                    .post(bodysms)
-                    .addHeader("accept", "application/json")
-                    .addHeader("content-type", "application/json")
-                    .addHeader(env.getRequiredProperty("api.name"), env.getRequiredProperty("api.value"))
-                    .build();
-
-            Response responsesms = client.newCall(requestsms).execute();
+//            MediaType mediaType = MediaType.parse("application/json");
+//            RequestBody bodysms = RequestBody.create(mediaType, "{\"type\":\"transactional\",\"unicodeEnabled\":false,\"sender\":\"pfs\",\"recipient\":\""+phone+"\",\"content\":\"your code to login : "+otp+"\"}");
+//            Request requestsms = new Request.Builder()
+//                    .url("https://api.brevo.com/v3/transactionalSMS/send")
+//                    .post(bodysms)
+//                    .addHeader("accept", "application/json")
+//                    .addHeader("content-type", "application/json")
+//                    .addHeader(env.getRequiredProperty("api.name"), env.getRequiredProperty("api.value"))
+//                    .build();
+//
+//            Response responsesms = client.newCall(requestsms).execute();
             return otp;
 
         }
