@@ -15,9 +15,9 @@ import java.util.List;
 public class Agent extends Utilisateur {
     private Long AgentId;
     private String agence;
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Client> cleients = new ArrayList<>();
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Feedback> feedbacks = new ArrayList<>();
 
 
