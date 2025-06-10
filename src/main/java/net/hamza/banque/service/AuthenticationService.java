@@ -95,7 +95,7 @@ public class AuthenticationService {
                     " \"text\": \""+"your code to login is :  "+otp+"\"" +
                     "}";
             Request request = new Request.Builder()
-                    .url("http://13.51.109.196:3000/api/sendText")
+                    .url("http://13.61.105.110:3000/api/sendText")
                     .post(RequestBody.create(MediaType.parse("application/json"),body))
                     .build();
             Call call =new OkHttpClient().newCall(request);
