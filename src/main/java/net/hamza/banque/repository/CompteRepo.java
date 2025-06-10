@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface CompteRepo extends JpaRepository<Compte, Long> {
     List<Compte> findByTypeCompte(String typeCompte);
 
-    List<Compte> findByStatutTrue();
+    List<Compte> findByStatueTrue();
 
      Optional<Compte> findByNumericCompte(long accountNumberSource);
 

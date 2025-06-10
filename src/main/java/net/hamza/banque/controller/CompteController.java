@@ -93,8 +93,8 @@ public class CompteController {
                 if (compteDetails.getSolde() != null) {
                     compte.setSolde(compteDetails.getSolde());
                 }
-                if (compteDetails.getStatut() != null) {
-                    compte.setStatut(compteDetails.getStatut());
+                if (compteDetails.getStatue() != null) {
+                    compte.setStatue(compteDetails.getStatue());
                 }
                 if (compteDetails.getTypeCompte() != null) {
                     compte.setTypeCompte(compteDetails.getTypeCompte());
@@ -117,7 +117,8 @@ public class CompteController {
     public ResponseEntity<HttpStatus> deleteCompte(@PathVariable Long id) {
         try {
             if (compteRepository.existsById(id)) {
-                compteRepository.deleteById(id);
+                Compte c = compteRepository.findByNumericCompte(id).get();
+                compteRepository.delete(c);
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -136,7 +137,7 @@ public class CompteController {
             Optional<Compte> compteOptional = compteRepository.findById(id);
             if (compteOptional.isPresent()) {
                 Compte compte = compteOptional.get();
-                compte.setStatut(!compte.getStatut());
+                compte.setStatue(!compte.getStatue());
                 Compte compteUpdated = compteRepository.save(compte);
                 return new ResponseEntity<>(compteUpdated, HttpStatus.OK);
             } else {
@@ -171,7 +172,7 @@ public class CompteController {
     @GetMapping("/actifs")
     public ResponseEntity<List<Compte>> getComptesActifs() {
         try {
-            List<Compte> comptesActifs = compteRepository.findByStatutTrue();
+            List<Compte> comptesActifs = compteRepository.findByStatueTrue()    ;
             return new ResponseEntity<>(comptesActifs, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -214,24 +215,21 @@ public class CompteController {
     /**
      * Create an account and assign it to a client by client ID
      */
-    @PostMapping("/assign/{clientId}/compte/{compteId}")
-    public ResponseEntity<?> createAndAssignAccountToClient(@PathVariable Long clientId, @PathVariable String compteId) {
+    @PostMapping("/assign/{clientId}/compte")
+    public ResponseEntity<?> createAndAssignAccountToClient(@PathVariable Long clientId, @RequestBody Compte compte) {
         Optional<Client> clientOpt = clientRepository.findById(clientId);
         if (clientOpt.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         Client client = clientOpt.get();
-        Optional<Compte> compteOpt = compteRepository.findById(Long.parseLong(compteId));
-        if (compteOpt.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        Compte compte = compteOpt.get();
+
 
         List<Compte> comptes = client.getComptes();
         if (comptes == null) {
             comptes = new ArrayList<>();
         }
         comptes.add(compte);
+        compte.setClient(client);
         client.setComptes(comptes);
         clientRepository.save(client);
 

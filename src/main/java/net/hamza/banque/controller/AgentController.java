@@ -161,4 +161,16 @@ public class AgentController {
             return clientRepo.save(client);
         }).orElseThrow();
     }
+    @GetMapping("/{agentId}/transactions")
+    public ResponseEntity<?> getTransactionsByAgent(@PathVariable Long agentId) {
+        Agent agent = agentRepo.findById(agentId).orElseThrow();
+        try {
+            return ResponseEntity.ok(objectMapper.writeValueAsString(agent.getCleients().stream()
+                    .flatMap(client -> client.getComptes().stream())
+                    .flatMap(compte -> compte.getTransactions().stream())
+                    .toList()));
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.status(500).body("Error processing JSON: " + e.getMessage());
+        }
+    }
 }
