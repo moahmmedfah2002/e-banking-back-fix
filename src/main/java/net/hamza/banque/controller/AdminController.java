@@ -24,6 +24,8 @@ public class AdminController {
 
     @PostMapping
     public Administrateur createAdmin(@RequestBody Administrateur admin) {
+        System.out.println(admin.getPassword());
+        admin.setEstActif(true);
         admin.setPassword(passwordEncoder.encode(admin.getPassword()));
         return administrateurRepo.save(admin);
     }

@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AgentRepo extends JpaRepository<Agent, Long> {
+    Agent findByEmail(String username);
 }

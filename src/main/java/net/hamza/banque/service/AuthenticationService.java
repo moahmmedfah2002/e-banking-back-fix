@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 import net.hamza.banque.dto.AuthResponse;
 import net.hamza.banque.dto.RequestAuth;
 import net.hamza.banque.jwt.JwtService;
-import net.hamza.banque.model.Client;
-import net.hamza.banque.model.Role;
-import net.hamza.banque.model.Utilisateur;
+import net.hamza.banque.model.*;
+import net.hamza.banque.repository.AdminRepo;
+import net.hamza.banque.repository.AgentRepo;
 import net.hamza.banque.repository.ClientRepo;
 import net.hamza.banque.repository.UserRepo;
 import okhttp3.*;
@@ -15,7 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,6 +36,8 @@ import java.util.Timer;
 public class AuthenticationService {
     public final UserRepo userRepo;
     public final ClientRepo clientRepo;
+    public final AdminRepo adminRepo;
+    private final AgentRepo agentRepo;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -53,15 +57,12 @@ public class AuthenticationService {
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
             );
 
-            // Recherche du client
-            Client user = clientRepo.findByEmail(request.getUsername())
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + request.getUsername()));
-
+            Utilisateur user = userRepo.findByEmail(request.getUsername())
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
             var jwtToken = jwtService.generateToken(user);
             int otp = sendOtp(user.getTelephone());
             user.setOtp(otp);
-
             userRepo.save(user);
 
             return AuthResponse.builder()
@@ -71,6 +72,10 @@ public class AuthenticationService {
                     .otp(otp)
                     .build();
 
+        } catch (AuthenticationException e) {
+            // Log l'erreur pour le debugging
+            System.err.println("Authentication failed: " + e.getMessage());
+            throw new BadCredentialsException("Invalid username/password");
         } catch (Exception e) {
             // Log l'erreur pour le debugging
             System.err.println("Login error: " + e.getMessage());
