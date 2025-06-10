@@ -1,6 +1,11 @@
 package net.hamza.banque.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import net.hamza.banque.model.Agent;
 import net.hamza.banque.model.Client;
@@ -16,10 +21,15 @@ public class AgentController {
     private AgentRepo agentRepo;
     @Autowired
     private ClientRepo clientRepo;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    private ObjectMapper objectMapper= new ObjectMapper();
 
     // Create agent account
     @PostMapping
     public Agent createAgent(@RequestBody Agent agent) {
+        agent.setPassword(passwordEncoder.encode(agent.getPassword()));
         return agentRepo.save(agent);
     }
 
@@ -36,6 +46,7 @@ public class AgentController {
             agent.setNom(updatedAgent.getNom());
             agent.setPrenom(updatedAgent.getPrenom());
             agent.setAgence(updatedAgent.getAgence());
+            agent.setPassword(passwordEncoder.encode(updatedAgent.getPassword()));
             agent.setEmail(updatedAgent.getEmail());
             agent.setTelephone(updatedAgent.getTelephone());
             return agentRepo.save(agent);
@@ -60,8 +71,12 @@ public class AgentController {
 
     // Get all agents
     @GetMapping
-    public List<Agent> getAllAgents() {
-        return agentRepo.findAll();
+    public ResponseEntity<?> getAllAgents() {
+        try {
+            return ResponseEntity.ok(objectMapper.writeValueAsString(agentRepo.findAll()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error processing JSON: " + e.getMessage());
+        }
     }
 
     // Get agent by id
@@ -72,9 +87,13 @@ public class AgentController {
 
     // Get all clients managed by an agent
     @GetMapping("/{agentId}/clients")
-    public List<Client> getClientsByAgent(@PathVariable Long agentId) {
+    public ResponseEntity getClientsByAgent(@PathVariable Long agentId) {
         Agent agent = agentRepo.findById(agentId).orElseThrow();
-        return agent.getCleients();
+        try {
+            return ResponseEntity.ok(objectMapper.writeValueAsString(agent.getCleients()));
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.status(500).body("Error processing JSON: " + e.getMessage());
+        }
     }
 
     // Get a specific client managed by an agent
@@ -91,6 +110,7 @@ public class AgentController {
     @PostMapping("/{agentId}/clients")
     public Client createClientByAgent(@PathVariable Long agentId, @RequestBody Client client) {
         Agent agent = agentRepo.findById(agentId).orElseThrow();
+        client.setPassword(passwordEncoder.encode(client.getPassword()));
         Client savedClient = clientRepo.save(client);
         agent.getCleients().add(savedClient);
         agentRepo.save(agent);
@@ -113,6 +133,7 @@ public class AgentController {
             client.setNom(updatedClient.getNom());
             client.setPrenom(updatedClient.getPrenom());
             client.setAdresse(updatedClient.getAdresse());
+            client.setPassword(passwordEncoder.encode(updatedClient.getPassword()));
             client.setVille(updatedClient.getVille());
             client.setCodePostal(updatedClient.getCodePostal());
             client.setPays(updatedClient.getPays());

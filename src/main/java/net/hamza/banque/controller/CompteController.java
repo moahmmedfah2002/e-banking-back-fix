@@ -1,9 +1,12 @@
 package net.hamza.banque.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import net.hamza.banque.dto.CompteAdd;
+import net.hamza.banque.model.Agent;
 import net.hamza.banque.model.Client;
 import net.hamza.banque.model.Compte;
+import net.hamza.banque.repository.AgentRepo;
 import net.hamza.banque.repository.ClientRepo;
 import net.hamza.banque.repository.CompteRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,15 +26,17 @@ public class CompteController {
 
     private final CompteRepo compteRepository;
     private final ClientRepo clientRepository;
+    private final AgentRepo agentRepo;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * Récupérer tous les comptes
      */
     @GetMapping
-    public ResponseEntity<List<Compte>> getAllComptes() {
+    public ResponseEntity<?> getAllComptes() {
         try {
             List<Compte> comptes = compteRepository.findAll();
-            return new ResponseEntity<>(comptes, HttpStatus.OK);
+            return new ResponseEntity<>(objectMapper.writeValueAsString(comptes), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -183,5 +189,52 @@ public class CompteController {
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    /**
+     * Get all accounts of an agent by agent ID
+     */
+    @GetMapping("/agent/{agentId}")
+    public ResponseEntity<?> getAllAccountsOfAgent(@PathVariable Long agentId) {
+
+        try {
+            return agentRepo.findById(agentId)
+                    .map(agent -> {
+                        List<Compte> comptes = agent.getCleients().stream()
+                                .flatMap(client -> client.getComptes().stream())
+                                .toList();
+                        return new ResponseEntity<>(comptes, HttpStatus.OK);
+                    })
+                    .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Create an account and assign it to a client by client ID
+     */
+    @PostMapping("/assign/{clientId}/compte/{compteId}")
+    public ResponseEntity<?> createAndAssignAccountToClient(@PathVariable Long clientId, @PathVariable String compteId) {
+        Optional<Client> clientOpt = clientRepository.findById(clientId);
+        if (clientOpt.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Client client = clientOpt.get();
+        Optional<Compte> compteOpt = compteRepository.findById(Long.parseLong(compteId));
+        if (compteOpt.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Compte compte = compteOpt.get();
+
+        List<Compte> comptes = client.getComptes();
+        if (comptes == null) {
+            comptes = new ArrayList<>();
+        }
+        comptes.add(compte);
+        client.setComptes(comptes);
+        clientRepository.save(client);
+
+        return new ResponseEntity<>(compte, HttpStatus.CREATED);
     }
 }

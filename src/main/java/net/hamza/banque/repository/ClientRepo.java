@@ -3,6 +3,7 @@ package net.hamza.banque.repository;
 import net.hamza.banque.model.Agent;
 import net.hamza.banque.model.Client;
 import net.hamza.banque.model.Feedback;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

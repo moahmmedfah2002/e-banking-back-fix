@@ -1,6 +1,11 @@
 package net.hamza.banque.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import net.hamza.banque.model.Client;
 import net.hamza.banque.repository.ClientRepo;
@@ -10,13 +15,19 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/clients")
 @CrossOrigin(origins = "*")
+@RequiredArgsConstructor
 public class ClientController {
     @Autowired
     private ClientRepo clientRepo;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    private ObjectMapper objectMapper= new ObjectMapper();
 
     // Create client account
     @PostMapping
     public Client createClient(@RequestBody Client client) {
+        client.setPassword(passwordEncoder.encode(client.getPassword()));
         return clientRepo.save(client);
     }
 
@@ -36,6 +47,7 @@ public class ClientController {
             client.setVille(updatedClient.getVille());
             client.setCodePostal(updatedClient.getCodePostal());
             client.setPays(updatedClient.getPays());
+            client.setPassword(passwordEncoder.encode(updatedClient.getPassword()));
             client.setDateNaissance(updatedClient.getDateNaissance());
             client.setCin(updatedClient.getCin());
             client.setEmail(updatedClient.getEmail());
@@ -64,8 +76,13 @@ public class ClientController {
 
     // Get all clients
     @GetMapping
-    public List<Client> getAllClients() {
-        return clientRepo.findAll();
+
+    public ResponseEntity<?> getAllClients() {
+        try {
+            return ResponseEntity.ok(objectMapper.writeValueAsString(clientRepo.findAll()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error processing JSON: " + e.getMessage());
+        }
     }
 
     // Get client by id
