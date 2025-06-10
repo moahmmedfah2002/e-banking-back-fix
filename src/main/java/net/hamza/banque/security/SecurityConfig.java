@@ -36,7 +36,7 @@ public class SecurityConfig {
 
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(e -> e.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(e -> e.requestMatchers("/auth/**", "/actuator/health").permitAll()
+                .authorizeHttpRequests(e -> e.requestMatchers("/auth/**", "/actuator/health","/virement/sendAccount","/virement/sendStip","/api/gemini/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider)
@@ -45,7 +45,7 @@ public class SecurityConfig {
 }
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4200")); // Spécifiez l'origine exacte
+        configuration.setAllowedOrigins(List.of("*")); // Spécifiez l'origine exacte
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowCredentials(true);
         configuration.setAllowedHeaders(List.of("*"));
