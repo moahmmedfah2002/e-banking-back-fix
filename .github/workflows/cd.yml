@@ -23,10 +23,10 @@ jobs:
         run: sudo docker pull mohammedfahlaoui/e-banking-back-github:latest
 
       - name: rm old container
-        run: sudo docker rm -f e-banking-back-github || true
+        run: sudo docker rm -f mohammedfahlaoui/e-banking-back-github || true
 
       - name: rm old  images
-        run: sudo docker image rm -f e-banking-back-github || true
+        run: sudo docker image rm -f mohammedfahlaoui/e-banking-back-github:latest || true
 
       - name: run Docker container backend
         run: sudo docker run -d -p 8082:8080 --name e-banking-back-github mohammedfahlaoui/e-banking-back-github:latest
