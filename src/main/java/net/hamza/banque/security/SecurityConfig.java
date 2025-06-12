@@ -36,8 +36,7 @@ public class SecurityConfig {
 
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(e -> e.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(e -> e.requestMatchers("/auth/**", "/actuator/health","/virement/sendAccount","/virement/sendStip","/api/gemini/**","/api/agent/**","/api/admins/**","/comptes/**").permitAll()
-                        .anyRequest().authenticated()
+                .authorizeHttpRequests(e->e.anyRequest().permitAll()
                 )
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
