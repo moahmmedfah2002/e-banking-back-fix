@@ -2,6 +2,7 @@ package net.hamza.banque.controller;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.stripe.model.*;
+import jakarta.transaction.Transactional;
 import net.hamza.banque.dto.ResponseVirement;
 import net.hamza.banque.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,7 @@ public class PaymentController {
     @Value("${stripe.api.key}")
     private String stripeApiKey;
 
-
+    @Transactional
     @GetMapping("/sendStip")
     public ResponseEntity<Object> payementStrip(
 
@@ -90,6 +91,7 @@ public class PaymentController {
         return ResponseEntity.ok(savedTransaction);
 
     }
+    @Transactional
     @GetMapping("/sendAccount")
     @JsonSerialize
     public ResponseVirement payementAccount(@RequestParam long accountReciver,
